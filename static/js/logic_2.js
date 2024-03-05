@@ -3,6 +3,9 @@ console.log("Start creating Map, use logic_1");
 
 // logic_1: Create initial base tile layers, a Leaflet layergroup for earthquakes, and a layer control toggle.
 
+// logic_2: get USGS earthquake data, use it to create circleMarker
+// use a common radius, common color, and popup with location, time, and magnitude.
+
 // Create the base layers.
 let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -41,3 +44,5 @@ let myMap = L.map("map", {
 L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
 }).addTo(myMap);
+
+// Get earthquake data from USGS site.
