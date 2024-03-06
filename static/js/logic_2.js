@@ -45,4 +45,36 @@ L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
 }).addTo(myMap);
 
-// Get earthquake data from USGS site.
+// Get earthquake data from USGS site. (use the link provided in the Challenge Instructions)
+// For this challenge I will be using data as leasted for the "Past 7 Days" of this comment, with a magnitude of 1 or greater (M1.0+ Earthquakes)
+let queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_week.geojson"
+// Perform a d3.json to AJEX fetch the query URL/
+d3.json(queryUrl).then(function (data) {
+    // Test the response, send the data features to look at first object.
+    console.log(data.features[0]);
+
+    // Create GeoJSON data layer to provide visual earthquake data.
+    // I will reference the documentation on the Leaflet website for the following.
+    var dataMarkerOptions = {
+        radius: 8,
+        fillColor: "#f03",
+        color: "black",
+        weight: 0.5,
+        opacity: 0.75,
+        fillOpacity: 0.5
+    };
+
+    L.geoJSON(data, {
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, dataMarkerOptions);
+        },
+
+        // use onEachFeature to add the popups to show the location, magnitude, and depth and when the eathquake occurred.
+        onEachFeature: function onEachFeature(feature, layer) {
+            layer.bindPopup("<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>");
+        }
+        
+    }).addTo(myMap);
+
+
+});
