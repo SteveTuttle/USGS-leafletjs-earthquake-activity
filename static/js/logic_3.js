@@ -11,11 +11,13 @@
 
 // Create the base layers.
 let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' +
+    `<br> Analyst: Steven Tuttle <a href="https://github.com/SteveTuttle/leaflet-challenge">Project GitHub Repository</a>`
 })
 
 let topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)' +
+    `<br> Analyst: Steven Tuttle <a href="https://github.com/SteveTuttle/leaflet-challenge">Project GitHub Repository</a>` 
 });
 
 // Create a baseMaps object.
@@ -54,34 +56,56 @@ let queryUrl = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_we
 // Perform a d3.json to AJEX fetch the query URL/
 d3.json(queryUrl).then(function (data) {
     // Test the response, send the data features to look at first object. -- comment out console.log after verification
-    // console.log(data.features[0]);
+    console.log(data.features[0]);
+
+    // Create function for "size" with geojsonMarker
+    function sizeMarker(magnitude) {
+        return magnitude * 5
+    }
+
+    // Create function for "depth" with geojsonMarker
+    function depthMarker(depth) {
+        return depth > 200 ? '#8c510a' :
+            depth > 100 ? '#bf812d' :
+            depth > 50 ? '#dfc27d' :
+            depth > 25 ? '#f6e8c3' :
+            depth > 10 ? '#c7eae5' :
+            depth > 5 ? '#80cdc1' :
+            depth > 1 ? '#35978f' :
+                        '#01665e';
+    }
 
     // Create GeoJSON data layer to provide visual earthquake data.
     // I will reference the documentation on the Leaflet website for the following.
-    var geojsonMarkerOptions = {
-        radius: 8,
-        fillColor: "#f03",
-        color: "black",
-        weight: 0.5,
-        opacity: 0.75,
-        fillOpacity: 0.5
-    };
+    function markerStyle(feature) {
+        return {
+            radius: sizeMarker(feature.properties.mag),
+            fillColor: depthMarker(feature.geometry.coordinates[2]),
+            color: "black",
+            weight: 0.5,
+            opacity: 1,
+            fillOpacity: 0.5
+        };
+    }
 
     L.geoJSON(data, {
         pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, geojsonMarkerOptions);
+            return L.circleMarker(latlng);
         },
+
+        // use markerStyle to define the circleMarker style
+        style: markerStyle,
 
         // use onEachFeature to add the popups to show the location, magnitude, and depth and when the eathquake occurred.
         onEachFeature: function onEachFeature(feature, layer) {
             layer.bindPopup(`<h3>${feature.properties.place}</h3>
             <hr>
-            <p>${new Date(feature.properties.time)}</p>
+            <p>${new Date(feature.properties.time).toLocaleString()}</p>
             <h3>Magnitude: ${feature.properties.mag.toLocaleString()}</h3>
             <h3>Depth: ${feature.geometry.coordinates[2].toLocaleString()}</h3>
             `);
         }
-        
+
     }).addTo(earthquakes);
 
 });
