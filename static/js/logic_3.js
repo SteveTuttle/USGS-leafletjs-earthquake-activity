@@ -6,6 +6,9 @@
 // logic_2: get USGS earthquake data, use it to create circleMarker for each earthquake
 // use a common radius, common color, and popup with location, time, magnitude, and depth.
 
+// logic_3: configure every circleMarker for each earthquake to reflect the Magnitude and Depth of the earthquake.
+// Magnitude will be represented by "size" and Depth will be represented by "color". 
+
 // Create the base layers.
 let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
