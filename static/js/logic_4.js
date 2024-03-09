@@ -111,7 +111,7 @@ d3.json(queryUrl).then(function (data) {
 
     }).addTo(earthquakes);
 
-    // Create map Legend
+    // Create Legend for the map
     let legend = L.control({position: 'bottomright'});
 
     legend.onAdd = function (myMap) {
@@ -121,6 +121,7 @@ d3.json(queryUrl).then(function (data) {
             labels = [];
 
         // loop through our density intervals and generate a label with a colored square for each interval
+        div.innerHTML += `Surface Depth (km)<br>`
         for (let i = 0; i < grades.length; i++) {
             div.innerHTML +=
                 '<i style="background:' + depthMarker(grades[i] + 1) + '"></i> ' +
@@ -131,5 +132,24 @@ d3.json(queryUrl).then(function (data) {
     };
 
     legend.addTo(myMap);
+
+    // Add Info Control on the map
+    let info = L.control();
+
+    info.onAdd = function () {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+    };
+
+    // method that we will use to update the control based on feature properties passed
+    info.update = function (props) {
+        this._div.innerHTML = '<h4>USGS Realtime Earthquake Data for the Past 7 Days</h4>' +  
+            `Circle radius correlates to earthquake Magnitude.` +
+            '<br>' +
+            `Circle color indicates earthquake Depth.`;
+    };
+
+    info.addTo(myMap);
 
 });
