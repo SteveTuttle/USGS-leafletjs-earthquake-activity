@@ -12,6 +12,8 @@
 // logic_4: create a basic legend for the colors used to indicate the depth of an earthquake in the circleMarker function.
 // will also provide info box explaining how the circleMArker radius coralates to earthquake size as well.
 
+// logic_5: (bonus activity) 
+
 // Create the base layers.
 let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' +
