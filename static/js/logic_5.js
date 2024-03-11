@@ -12,9 +12,9 @@
 // logic_4: create a basic legend for the colors used to indicate the depth of an earthquake in the circleMarker function.
 // will also provide info box explaining how the circleMArker radius coralates to earthquake size as well.
 
-// logic_5: (bonus activity) 
+// logic_5:(bonus activity) Add tectonic plates layergroup to the map to check for seismic activity. Also, adding new satellite map option as a base layer to provide additional perpsective. 
 
-// Create the base layers.
+// Create the base layers first from Leaflet documentation.
 let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' +
     `<br> Analyst: Steven Tuttle <a href="https://github.com/SteveTuttle/leaflet-challenge">Project GitHub Repository</a>`
@@ -25,18 +25,29 @@ let topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     `<br> Analyst: Steven Tuttle <a href="https://github.com/SteveTuttle/leaflet-challenge">Project GitHub Repository</a>` 
 });
 
+// create base layer from Google Maps satellite
+let googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3']
+});
+
 // Create a baseMaps object.
 let baseMaps = {
     "Street Map": street,
-    "Topographic Map": topo
+    "Topographic Map": topo,
+    "Satellite Map": googleSat
 };
 
 // Create a new empty Leaflet layergroup for earthquakes.
 let earthquakes = new L.layerGroup();
 
+// Create a new empty Leaflet layergroup for earthquakes.
+let tPlates = new L.layerGroup();
+
 // Create an overlay object to hold the overlay.
 let overlayMaps = {
-    Earthquakes: earthquakes
+    Earthquakes: earthquakes,
+    "Tectonic Plates": tPlates
 };
 
 // Create the map, giving it the streetmap and earthquakes layers to display on load.
@@ -45,7 +56,7 @@ let myMap = L.map("map", {
         37.09, -95.71
     ],
     zoom: 3.75,
-    layers: [street, earthquakes]
+    layers: [street, earthquakes, tPlates]
 });
 
 // Create a layer control.
@@ -56,12 +67,12 @@ L.control.layers(baseMaps, overlayMaps, {
 }).addTo(myMap);
 
 // Get earthquake data from USGS site. (use the link provided in the Challenge Instructions)
-// For this challenge I will be using data as leasted for the "Past 7 Days" of this comment, with a magnitude of 1 or greater (M1.0+ Earthquakes)
+// For this challenge I will be using data for at least the "Past 7 Days" of this comment, with a magnitude of 1 or greater (M1.0+ Earthquakes)
 let queryUrl = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_week.geojson`
 // Perform a d3.json to AJEX fetch the query URL/
 d3.json(queryUrl).then(function (data) {
     // Test the response, send the data features to look at first object.
-    console.log(data.features[0]);
+    // console.log(data.features[0]);
 
     // Create function for "size" with geojsonMarker
     function sizeMarker(magnitude) {
@@ -70,14 +81,14 @@ d3.json(queryUrl).then(function (data) {
 
     // Create function for "depth" with geojsonMarker
     function depthMarker(depth) {
-        return depth > 200 ? '#8c510a' :
-            depth > 100 ? '#bf812d' :
-            depth > 50 ? '#dfc27d' :
-            depth > 25 ? '#f6e8c3' :
-            depth > 10 ? '#c7eae5' :
-            depth > 5 ? '#80cdc1' :
-            depth > 1 ? '#35978f' :
-                        '#01665e';
+        return depth > 200 ? '#ffffcc' :
+            depth > 100 ? '#ffeda0' :
+            depth > 50 ? '#fed976' :
+            depth > 25 ? '#feb24c' :
+            depth > 10 ? '#fd8d3c' :
+            depth > 5 ? '#fc4e2a' :
+            depth > 1 ? '#e31a1c' :
+                        '#b10026';
     }
 
     // Create GeoJSON data layer to provide visual earthquake data.
@@ -155,3 +166,23 @@ d3.json(queryUrl).then(function (data) {
     info.addTo(myMap);
 
 });
+
+// Create a tectonic plate layer using GeoJSON data provided from a GitHub repository (https://github.com/fraxen/tectonicplates) via the challenge instructions.
+// data will come from: https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json
+
+// create call for tectonic plates to show Seismic Activity
+let seismicUrl = `https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json`
+// Perform a d3.json to AJEX fetch the query URL/
+d3.json(seismicUrl).then(function (seismicData) {
+    // Test the response, send the data features to look at first object.
+    console.log(seismicData);
+
+    // use GeoJSON to format seismac plate lines
+    L.geoJSON(seismicData, {
+        color: "yellow",
+        weight: 2,
+
+    }).addTo(tPlates);
+
+})
+
